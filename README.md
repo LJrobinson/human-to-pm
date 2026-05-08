@@ -13,3 +13,9 @@ It helps convert plain-English workflow problems into:
 - plain-English explanations
 
 This project exists because Product Management often requires translating real user pain into language that engineering, support, compliance, leadership, and customers can all act on.
+
+## User Story
+
+Couldn’t understand product.
+Built product to understand product.
+Now understands product better.
