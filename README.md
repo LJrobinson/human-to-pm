@@ -16,6 +16,6 @@ This project exists because Product Management often requires translating real u
 
 ## User Story
 
-Couldn’t understand product.
-Built product to understand product.
-Now understands product better.
+- Couldn’t understand product.
+- Built product to understand product.
+- Now understands product better.
