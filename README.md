@@ -14,8 +14,12 @@ It helps convert plain-English workflow problems into:
 
 This project exists because Product Management often requires translating real user pain into language that engineering, support, compliance, leadership, and customers can all act on.
 
-## User Story
+## Project Origin
 
 - Couldn’t understand product.
 - Built product to understand product.
 - Now understands product better.
+
+## User Story
+
+As an operator learning Product Management, I want a simple way to translate workflow pain into product artifacts so that I can practice PM communication with real examples.
