@@ -257,6 +257,9 @@
             <button data-example="Inventory teams are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be.">
               Example: unsupported characters / emoji
             </button>
+            <button data-example="Inventory team members are entering decimal quantities into an adjustment field that expects whole-unit eaches, causing inventory system errors and user frustration.">
+              Example: decimal entered for eaches
+            </button>
           </div>
 
           <p class="tiny-goblin">
@@ -440,7 +443,47 @@
           human:
             "Stop letting the strain field eat emojis and poop out mystery boxes."
         }
-      }
+      },
+      {
+        keywords: ["decimal", "decimals", "eaches", "each", "whole number", "whole-unit", "adjusting packages", "adjustment", "package adjustment", "quantity", "input field", "inventory errors", "user frustration", "jar", "jars"],
+        sections: {
+          rawObservation:
+            "Inventory team members are entering decimal quantities into an adjustment field that expects whole-unit eaches, causing inventory system errors and user frustration.",
+          symptom:
+            "Inventory adjustments fail or create errors when users enter decimal values into a field that only supports whole-number unit adjustments.",
+          rootCause:
+            "The adjustment workflow does not clearly communicate the expected unit type, and the input field allows users to enter decimal values even when the selected package or adjustment type only supports eaches.",
+          persona:
+            "Inventory Associate / Non-Technical Operator: needs clear field guidance, validation, and unit context before submitting adjustments. Inventory Manager: needs fewer failed adjustments and more reliable records. Support / POS Team: needs fewer preventable tickets caused by invalid quantity inputs.",
+          problem:
+            "Inventory users lack clear unit-specific validation during package adjustments, allowing decimal values to be entered into fields that require whole-number eaches and creating preventable errors in inventory workflows.",
+          userStory:
+            "As an inventory team member, I want adjustment fields to clearly show whether a package requires whole units or decimal quantities so that I can enter valid adjustments without causing system errors.",
+          acceptanceCriteria: [
+            "The adjustment field clearly displays the expected unit type before entry.",
+            "Packages measured in eaches only accept whole-number values.",
+            "Decimal values are blocked or warned against when the package requires whole units.",
+            "Error messages explain what value is allowed and why the current value is invalid.",
+            "Users can correct the value without restarting the adjustment workflow.",
+            "Existing adjustment behavior remains unchanged for package types that support decimal quantities."
+          ],
+          kpi:
+            "Reduce invalid adjustment attempts, inventory correction tickets, adjustment completion time, repeat training needs, and user frustration during package adjustment workflows.",
+          engineering:
+            "Add unit-aware validation to package adjustment inputs. When the selected package or adjustment type is measured in eaches, restrict the quantity input to whole numbers and display a clear helper message explaining the expected unit format. Preserve decimal support only for package types where fractional quantities are valid.",
+          openQuestions: [
+            "Which package types support decimal quantities and which require whole-number eaches?",
+            "Is the source of truth for unit type stored on the package, product, category, or adjustment reason?",
+            "Should decimals be blocked at input time, on submit, or both?",
+            "What should happen to existing adjustment records with invalid decimal values?",
+            "Are users entering decimals because they misunderstand the unit or because they are trying to represent partial packages?",
+            "Should the UI label say Eaches, Units, Quantity, or something more specific?",
+            "Are there state compliance rules that require stricter validation for certain adjustment types?"
+          ],
+          human:
+            "Stop letting people type 1.5 into a field that only accepts whole jars."
+        }
+      },
     ];
 
     function translateText(text) {
