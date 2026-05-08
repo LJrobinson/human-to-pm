@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Human to PM Translator</title>
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1f2630;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #3fb950;
+      --accent-2: #58a6ff;
+      --border: #30363d;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(63, 185, 80, 0.12), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(88, 166, 255, 0.10), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3rem 0;
+    }
+
+    header { margin-bottom: 2rem; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 6vw, 4.75rem);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: rgba(22, 27, 34, 0.86);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 48px var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header { padding: 1rem 1rem 0; }
+
+    .card-title {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .card-description {
+      margin: 0.25rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .card-body { padding: 1rem; }
+
+    textarea {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      background: #0d1117;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.16);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.75rem 1rem;
+      background: var(--panel-2);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      background: #263140;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #2ea043);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #07120a;
+    }
+
+    .example-buttons {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .example-buttons button {
+      width: 100%;
+      text-align: left;
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .output-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .output-section {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(13, 17, 23, 0.72);
+      padding: 1rem;
+    }
+
+    .output-section h3 {
+      margin: 0 0 0.5rem;
+      color: var(--accent-2);
+      font-size: 0.95rem;
+    }
+
+    .output-section p,
+    .output-section ul {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .output-section ul { padding-left: 1.15rem; }
+
+    .empty-state {
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      background: rgba(13, 17, 23, 0.5);
+    }
+
+    footer {
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    code { color: var(--accent); }
+
+    .tiny-goblin {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .tiny-goblin strong { color: var(--accent); }
+  </style>
+</head>
+
+<body>
+  <!-- Converts "this sucks" into "workflow friction with measurable downstream impact." -->
+  <!-- PM training gym. Goblins supervised. -->
+
+  <main>
+    <header>
+      <div class="eyebrow">Operational Reality → Product Language</div>
+      <h1>Human to PM Translator</h1>
+      <p class="subtitle">
+        A lightweight learning tool for converting messy real-world workflow observations into clearer product artifacts:
+        symptoms, personas, problem statements, user stories, acceptance criteria, KPI framing, engineering handoff notes,
+        and open questions.
+      </p>
+    </header>
+
+    <section class="layout" aria-label="Translator interface">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Human Input</h2>
+          <p class="card-description">
+            Describe the operational problem like a normal person. No corporate fog machine required.
+          </p>
+        </div>
+
+        <div class="card-body">
+          <textarea id="humanInput" placeholder="Example: Customers are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be."></textarea>
+
+          <div class="button-row">
+            <button class="primary" id="translateButton">Translate</button>
+            <button id="clearButton">Clear</button>
+          </div>
+
+          <div class="example-buttons" aria-label="Example inputs">
+            <button data-example="Inventory keeps typing labels differently and we have to keep fixing them.">
+              Example: inconsistent compliance labels
+            </button>
+            <button data-example="Drivers are waiting around because the order has to be entered in the POS and then typed again into route planning software.">
+              Example: duplicate delivery entry
+            </button>
+            <button data-example="The COO keeps asking for updates because nobody can quickly see what inventory issues are happening across stores.">
+              Example: visibility gap for leadership
+            </button>
+            <button data-example="Customers are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be.">
+              Example: unsupported characters / emoji
+            </button>
+          </div>
+
+          <p class="tiny-goblin">
+            <strong>Translation goal:</strong> turn “this workflow sucks” into something engineering, support, compliance,
+            and leadership can actually use.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Product Translation</h2>
+          <p class="card-description">
+            v2 teaches the breakdown: observation → symptom → likely cause → persona → artifact.
+          </p>
+        </div>
+
+        <div class="card-body">
+          <div id="output">
+            <div class="empty-state">
+              Enter a workflow problem, choose an example, then click <strong>Translate</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Built as a learning exercise for practicing Product Management translation.
+      <br />
+      v2 is still intentionally simple: static HTML, CSS, and JavaScript.
+    </footer>
+  </main>
+
+  <script>
+    const input = document.getElementById("humanInput");
+    const output = document.getElementById("output");
+    const translateButton = document.getElementById("translateButton");
+    const clearButton = document.getElementById("clearButton");
+    const exampleButtons = document.querySelectorAll("[data-example]");
+
+    const examples = [
+      {
+        keywords: ["label", "labels", "compliance", "typing", "formatting", "cannabinoid", "cannabinoids", "terpene", "terpenes"],
+        sections: {
+          rawObservation:
+            "Inventory users are manually entering compliance label text, and output quality varies depending on who completes the task.",
+          symptom:
+            "Compliance label text is inconsistent and may require manual correction before use.",
+          rootCause:
+            "The workflow relies on free-form typing instead of structured inputs, validation, or standardized output generation.",
+          persona:
+            "Inventory / Compliance User: needs clear fields and low-pressure guardrails. Reviewer / Manager: needs consistent output without checking every label manually.",
+          problem:
+            "Inventory users lack structured guardrails for compliance label entry, causing inconsistent output and avoidable correction work.",
+          userStory:
+            "As an inventory team member, I want required label details to generate a standardized text block so that I can complete compliance label entry consistently.",
+          acceptanceCriteria: [
+            "Required fields are clearly labeled.",
+            "The generated output follows a consistent format.",
+            "Users can copy the completed label text.",
+            "Missing required fields are identified before output is generated."
+          ],
+          kpi:
+            "Reduce correction rate, label-entry time, formatting variation, and repeat training burden.",
+          engineering:
+            "Build a lightweight form that maps required label inputs into a standardized copy/paste output block.",
+          openQuestions: [
+            "Which label fields cause the most corrections?",
+            "Which terms should be selected from controlled lists instead of typed manually?",
+            "Should the tool block incomplete output or warn before copying?",
+            "Are there multiple label formats by product type or lab?"
+          ],
+          human:
+            "Stop making people freestyle compliance labels."
+        }
+      },
+      {
+        keywords: ["driver", "drivers", "delivery", "route", "routing", "pos", "entered", "typed", "dispatch"],
+        sections: {
+          rawObservation:
+            "Delivery staff must enter order information into the POS and then repeat much of the same information in route-planning software.",
+          symptom:
+            "Dispatch is slower, drivers wait longer, and duplicated entry creates more opportunities for errors.",
+          rootCause:
+            "Order and routing workflows are disconnected, forcing humans to act as the integration layer between systems.",
+          persona:
+            "Dispatcher / Delivery Coordinator: needs fast, accurate handoff from order entry to routing. Driver: needs timely dispatch and accurate route details.",
+          problem:
+            "Delivery teams are experiencing avoidable fulfillment delays caused by duplicate data entry between POS and route-planning workflows.",
+          userStory:
+            "As a dispatcher, I want order details to transfer cleanly into route-planning steps so that drivers can be dispatched faster with fewer manual entry errors.",
+          acceptanceCriteria: [
+            "Required order details are captured once.",
+            "Route-planning output uses consistent customer, address, and order fields.",
+            "Dispatch users can verify details before route assignment.",
+            "Manual re-entry is reduced or eliminated for repeated fields."
+          ],
+          kpi:
+            "Reduce order-to-dispatch time, duplicate entry rate, delivery correction rate, and driver idle time.",
+          engineering:
+            "Map POS order fields to route-planning requirements and identify the minimum viable handoff format for dispatch.",
+          openQuestions: [
+            "Which fields are duplicated between systems?",
+            "Where do the most delivery errors occur?",
+            "Is there an export/import path, API, or copy-ready intermediate format?",
+            "What is the minimum data needed to dispatch safely and compliantly?"
+          ],
+          human:
+            "Stop making humans type the same delivery order twice."
+        }
+      },
+      {
+        keywords: ["coo", "leadership", "dashboard", "visibility", "updates", "stores", "inventory issues"],
+        sections: {
+          rawObservation:
+            "Leadership repeatedly asks for inventory status updates because issue visibility across stores is not easily accessible.",
+          symptom:
+            "Teams spend time explaining status manually instead of acting on inventory priorities.",
+          rootCause:
+            "Operational issue data exists, but it is not summarized in a fast, shared, decision-ready view.",
+          persona:
+            "Operations Leader: needs fast visibility into exceptions and priorities. Inventory Team: needs fewer repeated status interruptions.",
+          problem:
+            "Leadership lacks fast, reliable visibility into inventory issues across locations, creating repeated status-check requests and slower prioritization.",
+          userStory:
+            "As an operations leader, I want a clear dashboard view of inventory issues so that I can quickly understand priorities and align the team.",
+          acceptanceCriteria: [
+            "Inventory issues are grouped by location and severity.",
+            "The view highlights recent changes or unresolved items.",
+            "Users can identify which issues need follow-up.",
+            "The dashboard reduces the need for repeated manual status requests."
+          ],
+          kpi:
+            "Reduce manual status requests, time-to-prioritize issues, unresolved aging inventory issues, and cross-team communication delays.",
+          engineering:
+            "Create a dashboard-driven summary of inventory exceptions using available POS or BI data sources.",
+          openQuestions: [
+            "Which issues matter most to leadership?",
+            "Which source system is most reliable?",
+            "How often does the data need to refresh?",
+            "What thresholds determine severity or priority?"
+          ],
+          human:
+            "Give leadership the windshield instead of making them ask twelve people where the car is going."
+        }
+      },
+      {
+        keywords: ["emoji", "bad characters", "unsupported characters", "weird boxes", "strain field", "unicode", "characters", "symbols", "boxes"],
+        sections: {
+          rawObservation:
+            "Users are entering emoji or unsupported characters into the strain field, and menus display broken replacement boxes instead of readable product names.",
+          symptom:
+            "Customer-facing menus show broken visual characters when unsupported text is entered into strain names.",
+          rootCause:
+            "The strain field likely accepts characters that downstream menu systems cannot render, encode, or normalize correctly.",
+          persona:
+            "Menu Admin / Data Entry User: needs clear validation before publishing. Customer / Shopper: needs readable product names. Support Team: needs fewer preventable formatting tickets.",
+          problem:
+            "Menu administrators lack input validation for unsupported characters in strain fields, allowing invalid text to reach downstream menu displays and create broken customer-facing product names.",
+          userStory:
+            "As a menu administrator, I want the strain field to prevent or warn me about unsupported characters so that published menus display clean, readable product names.",
+          acceptanceCriteria: [
+            "The strain field detects unsupported characters before saving.",
+            "The user receives a clear warning explaining which characters are unsupported.",
+            "Invalid strain names are prevented from publishing to customer-facing menus.",
+            "Existing strain names with unsupported characters are flagged for review.",
+            "Menu previews display the strain name exactly as customers will see it."
+          ],
+          kpi:
+            "Reduce menu display errors, support tickets related to product-name formatting, manual correction time, and customer-facing menu defects.",
+          engineering:
+            "Add character validation and/or sanitization to the strain name field based on the character set supported by downstream menu renderers. Include a preview or warning state before publishing.",
+          openQuestions: [
+            "Which characters are actually unsupported?",
+            "Is the issue caused by emoji, Unicode handling, font rendering, encoding, or a downstream menu provider?",
+            "Should invalid characters be blocked, stripped, replaced, or allowed with a warning?",
+            "Do existing products need a cleanup or migration report?",
+            "Are users entering symbols for a legitimate business reason?"
+          ],
+          human:
+            "Stop letting the strain field eat emojis and poop out mystery boxes."
+        }
+      }
+    ];
+
+    function translateText(text) {
+      const normalized = text.toLowerCase();
+
+      const matchedExample = examples.find(example =>
+        example.keywords.some(keyword => normalized.includes(keyword))
+      );
+
+      if (matchedExample) {
+        return matchedExample.sections;
+      }
+
+      return {
+        rawObservation:
+          "A user or team is describing a repeated workflow issue that appears to create friction, delay, inconsistency, or avoidable rework.",
+        symptom:
+          "The visible problem is that the workflow produces inconsistent outcomes or requires extra effort to complete correctly.",
+        rootCause:
+          "The likely cause is unclear structure, missing validation, disconnected systems, ambiguous ownership, or too much manual work.",
+        persona:
+          "Primary User: needs a clearer, lower-friction workflow. Support / Operations: needs fewer repeated corrections and escalations.",
+        problem:
+          "Users are experiencing repeatable workflow friction that may be causing delays, inconsistent outcomes, or preventable correction work.",
+        userStory:
+          "As a user, I want the workflow to provide clearer structure and fewer manual steps so that I can complete the task accurately and efficiently.",
+        acceptanceCriteria: [
+          "The workflow identifies required information clearly.",
+          "Users receive guidance before submitting incomplete or inconsistent work.",
+          "The desired output is repeatable across users.",
+          "The solution reduces manual correction or rework."
+        ],
+        kpi:
+          "Measure task completion time, error rate, correction rate, support tickets, and user adoption.",
+        engineering:
+          "Investigate the workflow steps, identify repeated manual inputs, and define the smallest change that reduces user friction.",
+        openQuestions: [
+          "Who is most affected by this issue?",
+          "How often does it happen?",
+          "What downstream work does it create?",
+          "What is the smallest testable improvement?",
+          "How would we know the change worked?"
+        ],
+        human:
+          "Find the part where people keep tripping and remove the banana peel."
+      };
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderTextSection(title, value) {
+      if (!value) return "";
+      return `
+        <article class="output-section">
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(value)}</p>
+        </article>
+      `;
+    }
+
+    function renderListSection(title, values) {
+      if (!Array.isArray(values) || values.length === 0) return "";
+      return `
+        <article class="output-section">
+          <h3>${escapeHtml(title)}</h3>
+          <ul>
+            ${values.map(item => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </article>
+      `;
+    }
+
+    function renderOutput(sections) {
+      output.innerHTML = `
+        <div class="output-grid">
+          ${renderTextSection("Raw Observation", sections.rawObservation)}
+          ${renderTextSection("Symptom", sections.symptom)}
+          ${renderTextSection("Likely Root Cause", sections.rootCause)}
+          ${renderTextSection("Affected Persona", sections.persona)}
+          ${renderTextSection("Product Problem Statement", sections.problem)}
+          ${renderTextSection("User Story", sections.userStory)}
+          ${renderListSection("Acceptance Criteria", sections.acceptanceCriteria)}
+          ${renderTextSection("KPI Angle", sections.kpi)}
+          ${renderTextSection("Engineering Handoff", sections.engineering)}
+          ${renderListSection("Open Questions", sections.openQuestions)}
+          ${renderTextSection("Dumb Human Mode", sections.human)}
+        </div>
+      `;
+    }
+
+    translateButton.addEventListener("click", () => {
+      const text = input.value.trim();
+
+      if (!text) {
+        output.innerHTML = `
+          <div class="empty-state">
+            Type a messy workflow problem first. The translator requires at least one goblin offering.
+          </div>
+        `;
+        return;
+      }
+
+      renderOutput(translateText(text));
+    });
+
+    clearButton.addEventListener("click", () => {
+      input.value = "";
+      output.innerHTML = `
+        <div class="empty-state">
+          Enter a workflow problem, choose an example, then click <strong>Translate</strong>.
+        </div>
+      `;
+      input.focus();
+    });
+
+    exampleButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        input.value = button.dataset.example;
+        renderOutput(translateText(input.value));
+      });
+    });
+  </script>
+</body>
+</html>
