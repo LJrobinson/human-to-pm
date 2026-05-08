@@ -237,7 +237,7 @@
         </div>
 
         <div class="card-body">
-          <textarea id="humanInput" placeholder="Example: Customers are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be."></textarea>
+          <textarea id="humanInput" placeholder="Example: Inventory teams are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be."></textarea>
 
           <div class="button-row">
             <button class="primary" id="translateButton">Translate</button>
@@ -254,7 +254,7 @@
             <button data-example="The COO keeps asking for updates because nobody can quickly see what inventory issues are happening across stores.">
               Example: visibility gap for leadership
             </button>
-            <button data-example="Customers are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be.">
+            <button data-example="Inventory teams are entering bad characters like emoji into the strain field. Menus show weird boxes where the emoji should be.">
               Example: unsupported characters / emoji
             </button>
           </div>
@@ -446,9 +446,21 @@
     function translateText(text) {
       const normalized = text.toLowerCase();
 
-      const matchedExample = examples.find(example =>
-        example.keywords.some(keyword => normalized.includes(keyword))
-      );
+      // Match the most specific example instead of the first example that shares one word.
+      // Example: "POS" appears in delivery workflows, but "emoji + strain field + menu boxes"
+      // should win because it has more specific keyword matches. Tiny raccoon trap disarmed.
+      const scoredExamples = examples
+        .map(example => {
+          const score = example.keywords.reduce((total, keyword) => {
+            return normalized.includes(keyword) ? total + keyword.length : total;
+          }, 0);
+
+          return { example, score };
+        })
+        .filter(result => result.score > 0)
+        .sort((a, b) => b.score - a.score);
+
+      const matchedExample = scoredExamples[0]?.example;
 
       if (matchedExample) {
         return matchedExample.sections;
